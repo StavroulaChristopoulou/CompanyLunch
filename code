@@ -1,0 +1,62 @@
+import csv
+import math
+import random
+import pprint
+
+pp = pprint.PrettyPrinter(indent=2)
+
+ORIGINAL_EMPLOYEES = []
+
+with open('employees.csv', 'r') as f:
+    employees = csv.reader(f)
+    for row in employees:
+        ORIGINAL_EMPLOYEES.append(row)
+ 
+ORIGINAL_EMPLOYEES = ORIGINAL_EMPLOYEES[1:]
+NUMBER_OF_EMPLOYEES = len(ORIGINAL_EMPLOYEES)
+PERSONS_PER_TABLE = 6
+weekdays = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday']
+number_of_tables = math.ceil(NUMBER_OF_EMPLOYEES/PERSONS_PER_TABLE)
+tables_list = []
+
+# DEFS
+def shuffle_employees():
+    new_list_employees_shuffled = ORIGINAL_EMPLOYEES
+    random.shuffle(new_list_employees_shuffled)
+    return new_list_employees_shuffled
+
+def create_tables(index):
+    table = {
+        "tableName": "Table " + str(index), 
+        "employee": [] , 
+        "dayOfWeek": "" ,
+        "sittingOnTheTable": 0,
+        "tableIndex": index
+    }
+    
+    return table
+
+def create_sittings(index):
+    for i in range(number_of_tables):
+        tables_list[index].append(create_tables(i + 1))
+
+def put_employees_on_tables(day_of_week, index):
+    shuffled = shuffle_employees()
+    count = 0
+
+    for i, employee in enumerate(shuffled):
+        tables_list[index][count]['dayOfWeek'] = day_of_week
+        tables_list[index][count]['employee'].append(employee[1])
+        tables_list[index][count]['sittingOnTheTable'] = tables_list[index][count]['sittingOnTheTable'] + 1
+
+        count = count+1
+        if count == number_of_tables:
+            count = 0
+
+    pp.pprint(tables_list)
+
+# START
+for i, day in enumerate(weekdays):
+    tables_list.append([])
+    create_sittings(i)
+    put_employees_on_tables(day, i)
